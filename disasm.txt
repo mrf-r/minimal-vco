@@ -1,0 +1,216 @@
+
+build/g0synth.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+08000534 <vcoTap>:
+ 8000534:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000536:	46de      	mov	lr, fp
+ 8000538:	4657      	mov	r7, sl
+ 800053a:	464e      	mov	r6, r9
+ 800053c:	4645      	mov	r5, r8
+ 800053e:	b5e0      	push	{r5, r6, r7, lr}
+ 8000540:	0004      	movs	r4, r0
+ 8000542:	4b60      	ldr	r3, [pc, #384]	; (80006c4 <vcoTap+0x190>)
+ 8000544:	4f60      	ldr	r7, [pc, #384]	; (80006c8 <vcoTap+0x194>)
+ 8000546:	681a      	ldr	r2, [r3, #0]
+ 8000548:	4357      	muls	r7, r2
+ 800054a:	4a60      	ldr	r2, [pc, #384]	; (80006cc <vcoTap+0x198>)
+ 800054c:	4694      	mov	ip, r2
+ 800054e:	4467      	add	r7, ip
+ 8000550:	601f      	str	r7, [r3, #0]
+ 8000552:	17fb      	asrs	r3, r7, #31
+ 8000554:	041b      	lsls	r3, r3, #16
+ 8000556:	0c1b      	lsrs	r3, r3, #16
+ 8000558:	19db      	adds	r3, r3, r7
+ 800055a:	141d      	asrs	r5, r3, #16
+ 800055c:	8806      	ldrh	r6, [r0, #0]
+ 800055e:	6943      	ldr	r3, [r0, #20]
+ 8000560:	435e      	muls	r6, r3
+ 8000562:	0c36      	lsrs	r6, r6, #16
+ 8000564:	6983      	ldr	r3, [r0, #24]
+ 8000566:	469c      	mov	ip, r3
+ 8000568:	4466      	add	r6, ip
+ 800056a:	b2b6      	uxth	r6, r6
+ 800056c:	217f      	movs	r1, #127	; 0x7f
+ 800056e:	0030      	movs	r0, r6
+ 8000570:	f7ff fe64 	bl	800023c <__udivsi3>
+ 8000574:	217e      	movs	r1, #126	; 0x7e
+ 8000576:	4031      	ands	r1, r6
+ 8000578:	4e55      	ldr	r6, [pc, #340]	; (80006d0 <vcoTap+0x19c>)
+ 800057a:	00c3      	lsls	r3, r0, #3
+ 800057c:	599a      	ldr	r2, [r3, r6]
+ 800057e:	18f3      	adds	r3, r6, r3
+ 8000580:	685b      	ldr	r3, [r3, #4]
+ 8000582:	469a      	mov	sl, r3
+ 8000584:	3001      	adds	r0, #1
+ 8000586:	00c0      	lsls	r0, r0, #3
+ 8000588:	5986      	ldr	r6, [r0, r6]
+ 800058a:	1ab6      	subs	r6, r6, r2
+ 800058c:	434e      	muls	r6, r1
+ 800058e:	0b76      	lsrs	r6, r6, #13
+ 8000590:	4690      	mov	r8, r2
+ 8000592:	44b0      	add	r8, r6
+ 8000594:	4b4f      	ldr	r3, [pc, #316]	; (80006d4 <vcoTap+0x1a0>)
+ 8000596:	681b      	ldr	r3, [r3, #0]
+ 8000598:	469b      	mov	fp, r3
+ 800059a:	4699      	mov	r9, r3
+ 800059c:	44c1      	add	r9, r8
+ 800059e:	8862      	ldrh	r2, [r4, #2]
+ 80005a0:	0a93      	lsrs	r3, r2, #10
+ 80005a2:	2680      	movs	r6, #128	; 0x80
+ 80005a4:	00f6      	lsls	r6, r6, #3
+ 80005a6:	4032      	ands	r2, r6
+ 80005a8:	464e      	mov	r6, r9
+ 80005aa:	435e      	muls	r6, r3
+ 80005ac:	4641      	mov	r1, r8
+ 80005ae:	4359      	muls	r1, r3
+ 80005b0:	0c09      	lsrs	r1, r1, #16
+ 80005b2:	4369      	muls	r1, r5
+ 80005b4:	1871      	adds	r1, r6, r1
+ 80005b6:	3301      	adds	r3, #1
+ 80005b8:	464e      	mov	r6, r9
+ 80005ba:	435e      	muls	r6, r3
+ 80005bc:	4640      	mov	r0, r8
+ 80005be:	4343      	muls	r3, r0
+ 80005c0:	0c1b      	lsrs	r3, r3, #16
+ 80005c2:	436b      	muls	r3, r5
+ 80005c4:	18f3      	adds	r3, r6, r3
+ 80005c6:	0a8e      	lsrs	r6, r1, #10
+ 80005c8:	4943      	ldr	r1, [pc, #268]	; (80006d8 <vcoTap+0x1a4>)
+ 80005ca:	1a89      	subs	r1, r1, r2
+ 80005cc:	4371      	muls	r1, r6
+ 80005ce:	0a9e      	lsrs	r6, r3, #10
+ 80005d0:	4356      	muls	r6, r2
+ 80005d2:	198e      	adds	r6, r1, r6
+ 80005d4:	2380      	movs	r3, #128	; 0x80
+ 80005d6:	061b      	lsls	r3, r3, #24
+ 80005d8:	18f2      	adds	r2, r6, r3
+ 80005da:	0c12      	lsrs	r2, r2, #16
+ 80005dc:	00d3      	lsls	r3, r2, #3
+ 80005de:	189b      	adds	r3, r3, r2
+ 80005e0:	009b      	lsls	r3, r3, #2
+ 80005e2:	189b      	adds	r3, r3, r2
+ 80005e4:	00da      	lsls	r2, r3, #3
+ 80005e6:	189b      	adds	r3, r3, r2
+ 80005e8:	195b      	adds	r3, r3, r5
+ 80005ea:	0c1b      	lsrs	r3, r3, #16
+ 80005ec:	81e3      	strh	r3, [r4, #14]
+ 80005ee:	493b      	ldr	r1, [pc, #236]	; (80006dc <vcoTap+0x1a8>)
+ 80005f0:	f7ff fe24 	bl	800023c <__udivsi3>
+ 80005f4:	8923      	ldrh	r3, [r4, #8]
+ 80005f6:	4358      	muls	r0, r3
+ 80005f8:	4440      	add	r0, r8
+ 80005fa:	45cb      	cmp	fp, r9
+ 80005fc:	dd20      	ble.n	8000640 <vcoTap+0x10c>
+ 80005fe:	8961      	ldrh	r1, [r4, #10]
+ 8000600:	4349      	muls	r1, r1
+ 8000602:	17ca      	asrs	r2, r1, #31
+ 8000604:	0512      	lsls	r2, r2, #20
+ 8000606:	0d13      	lsrs	r3, r2, #20
+ 8000608:	185b      	adds	r3, r3, r1
+ 800060a:	131b      	asrs	r3, r3, #12
+ 800060c:	17fa      	asrs	r2, r7, #31
+ 800060e:	0312      	lsls	r2, r2, #12
+ 8000610:	0b12      	lsrs	r2, r2, #12
+ 8000612:	19d7      	adds	r7, r2, r7
+ 8000614:	153f      	asrs	r7, r7, #20
+ 8000616:	429f      	cmp	r7, r3
+ 8000618:	d912      	bls.n	8000640 <vcoTap+0x10c>
+ 800061a:	464a      	mov	r2, r9
+ 800061c:	0052      	lsls	r2, r2, #1
+ 800061e:	0852      	lsrs	r2, r2, #1
+ 8000620:	4651      	mov	r1, sl
+ 8000622:	4351      	muls	r1, r2
+ 8000624:	0c0a      	lsrs	r2, r1, #16
+ 8000626:	4350      	muls	r0, r2
+ 8000628:	0c00      	lsrs	r0, r0, #16
+ 800062a:	041a      	lsls	r2, r3, #16
+ 800062c:	0b12      	lsrs	r2, r2, #12
+ 800062e:	436a      	muls	r2, r5
+ 8000630:	1882      	adds	r2, r0, r2
+ 8000632:	88e0      	ldrh	r0, [r4, #6]
+ 8000634:	4b2a      	ldr	r3, [pc, #168]	; (80006e0 <vcoTap+0x1ac>)
+ 8000636:	469c      	mov	ip, r3
+ 8000638:	4460      	add	r0, ip
+ 800063a:	0500      	lsls	r0, r0, #20
+ 800063c:	1880      	adds	r0, r0, r2
+ 800063e:	e002      	b.n	8000646 <vcoTap+0x112>
+ 8000640:	4b28      	ldr	r3, [pc, #160]	; (80006e4 <vcoTap+0x1b0>)
+ 8000642:	681b      	ldr	r3, [r3, #0]
+ 8000644:	18c0      	adds	r0, r0, r3
+ 8000646:	4b23      	ldr	r3, [pc, #140]	; (80006d4 <vcoTap+0x1a0>)
+ 8000648:	464a      	mov	r2, r9
+ 800064a:	601a      	str	r2, [r3, #0]
+ 800064c:	4b25      	ldr	r3, [pc, #148]	; (80006e4 <vcoTap+0x1b0>)
+ 800064e:	681a      	ldr	r2, [r3, #0]
+ 8000650:	1a81      	subs	r1, r0, r2
+ 8000652:	0c09      	lsrs	r1, r1, #16
+ 8000654:	4369      	muls	r1, r5
+ 8000656:	1841      	adds	r1, r0, r1
+ 8000658:	6018      	str	r0, [r3, #0]
+ 800065a:	88a2      	ldrh	r2, [r4, #4]
+ 800065c:	4b20      	ldr	r3, [pc, #128]	; (80006e0 <vcoTap+0x1ac>)
+ 800065e:	469c      	mov	ip, r3
+ 8000660:	4462      	add	r2, ip
+ 8000662:	17d0      	asrs	r0, r2, #31
+ 8000664:	1813      	adds	r3, r2, r0
+ 8000666:	4043      	eors	r3, r0
+ 8000668:	17c8      	asrs	r0, r1, #31
+ 800066a:	0500      	lsls	r0, r0, #20
+ 800066c:	0d00      	lsrs	r0, r0, #20
+ 800066e:	1840      	adds	r0, r0, r1
+ 8000670:	1300      	asrs	r0, r0, #12
+ 8000672:	491d      	ldr	r1, [pc, #116]	; (80006e8 <vcoTap+0x1b4>)
+ 8000674:	1acb      	subs	r3, r1, r3
+ 8000676:	4343      	muls	r3, r0
+ 8000678:	17f1      	asrs	r1, r6, #31
+ 800067a:	0509      	lsls	r1, r1, #20
+ 800067c:	0d09      	lsrs	r1, r1, #20
+ 800067e:	198e      	adds	r6, r1, r6
+ 8000680:	1336      	asrs	r6, r6, #12
+ 8000682:	4372      	muls	r2, r6
+ 8000684:	189b      	adds	r3, r3, r2
+ 8000686:	2280      	movs	r2, #128	; 0x80
+ 8000688:	0612      	lsls	r2, r2, #24
+ 800068a:	4694      	mov	ip, r2
+ 800068c:	4463      	add	r3, ip
+ 800068e:	0c1a      	lsrs	r2, r3, #16
+ 8000690:	00d3      	lsls	r3, r2, #3
+ 8000692:	189b      	adds	r3, r3, r2
+ 8000694:	009b      	lsls	r3, r3, #2
+ 8000696:	189b      	adds	r3, r3, r2
+ 8000698:	00da      	lsls	r2, r3, #3
+ 800069a:	189b      	adds	r3, r3, r2
+ 800069c:	195b      	adds	r3, r3, r5
+ 800069e:	0c1b      	lsrs	r3, r3, #16
+ 80006a0:	8223      	strh	r3, [r4, #16]
+ 80006a2:	89a2      	ldrh	r2, [r4, #12]
+ 80006a4:	4b11      	ldr	r3, [pc, #68]	; (80006ec <vcoTap+0x1b8>)
+ 80006a6:	681b      	ldr	r3, [r3, #0]
+ 80006a8:	429a      	cmp	r2, r3
+ 80006aa:	d907      	bls.n	80006bc <vcoTap+0x188>
+ 80006ac:	4b0f      	ldr	r3, [pc, #60]	; (80006ec <vcoTap+0x1b8>)
+ 80006ae:	601a      	str	r2, [r3, #0]
+ 80006b0:	bcf0      	pop	{r4, r5, r6, r7}
+ 80006b2:	46bb      	mov	fp, r7
+ 80006b4:	46b2      	mov	sl, r6
+ 80006b6:	46a9      	mov	r9, r5
+ 80006b8:	46a0      	mov	r8, r4
+ 80006ba:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+ 80006bc:	3b01      	subs	r3, #1
+ 80006be:	4a0b      	ldr	r2, [pc, #44]	; (80006ec <vcoTap+0x1b8>)
+ 80006c0:	6013      	str	r3, [r2, #0]
+ 80006c2:	e7f5      	b.n	80006b0 <vcoTap+0x17c>
+ 80006c4:	20000034 	.word	0x20000034
+ 80006c8:	41c64e6d 	.word	0x41c64e6d
+ 80006cc:	00003039 	.word	0x00003039
+ 80006d0:	08002d14 	.word	0x08002d14
+ 80006d4:	2000002c 	.word	0x2000002c
+ 80006d8:	000003ff 	.word	0x000003ff
+ 80006dc:	00000555 	.word	0x00000555
+ 80006e0:	fffff800 	.word	0xfffff800
+ 80006e4:	20000030 	.word	0x20000030
+ 80006e8:	00000fff 	.word	0x00000fff
+ 80006ec:	20000028 	.word	0x20000028

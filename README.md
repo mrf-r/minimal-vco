@@ -34,3 +34,10 @@ System IO:
 - 20 - PB6 - UART1_TX - MIDI OUT (reserved)
 - 01 - PB7 - UART1_RX - MIDI IN (reserved)
 
+# usefull:
+
+approximate execution time without debugging (in case of linear code):
+
+```bash
+arm-none-eabi-objdump --disassemble=vcoTap build/g0synth.elf > disasm.txt
+```
