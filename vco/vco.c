@@ -3,6 +3,7 @@
 #define GEN2_MAX_OCTAVE_OFFSET 3
 #define MAX_ADC 4096
 #define MAX_PWM 333
+#define TABLE_SIZE 512
 
 typedef enum {
   ADC_PITCH = 0,
@@ -16,7 +17,7 @@ typedef enum {
 static struct {
   uint32_t inc;
   uint32_t recp;
-} table_pitch_inc[513] = {
+} table_pitch_inc[TABLE_SIZE + 1] = {
     {0x2c9b3, 0x5b2a}, {0x2d414, 0x59db},  {0x2de9c, 0x5891},
     {0x2e94c, 0x574c}, {0x2f423, 0x560c},  {0x2ff22, 0x54d0},
     {0x30a4b, 0x5399}, {0x3159d, 0x5266},  {0x32119, 0x5138},

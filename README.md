@@ -34,6 +34,19 @@ System IO:
 - 20 - PB6 - UART1_TX - MIDI OUT (reserved)
 - 01 - PB7 - UART1_RX - MIDI IN (reserved)
 
+# build:
+
+
+```bash
+# python3 and modules for the st ip debug only and can be omitted
+sudo apt install gcc-arm-none-eabi openocd gdb-multiarch python3
+pip install -U pip cmsis-svd terminaltables
+# build target
+make all -j
+#flash target
+openocd -f openocd-flash.cfg
+```
+
 # usefull:
 
 approximate execution time without debugging (in case of linear code):
