@@ -1,8 +1,11 @@
 #include "vco.h"
 
-#define GEN2_MAX_OCTAVE_OFFSET 3
+// GEN2_MAX_OCTAVE_OFFSET must be power of 2 !
+#define GEN2_MAX_OCTAVE_OFFSET 4
+// MAX_ADC must be power of 2 !
 #define MAX_ADC 4096
 #define MAX_PWM 333
+// TABLE_SIZE must be power of 2 !
 #define TABLE_SIZE 512
 
 typedef enum {
@@ -191,11 +194,10 @@ static struct {
     {0x1132b09c, 0xf}, {0x1172ba7e, 0xf},  {0x11b3b2d4, 0x1d},
 };
 
+#define CELL_STEPS (65536 / TABLE_SIZE)
 static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
-  const uint32_t cell_steps =
-      65536 / (sizeof(table_pitch_inc) / sizeof(table_pitch_inc[0]));
-  uint32_t pos = pitch / cell_steps;
-  uint32_t spos = pitch & (cell_steps - 1);
+  uint32_t pos = pitch / CELL_STEPS;
+  uint32_t spos = pitch & (CELL_STEPS - 1);
   uint32_t v0 = table_pitch_inc[pos].inc;
   *recp = table_pitch_inc[pos].recp;
   int32_t diff = table_pitch_inc[pos + 1].inc - v0;
