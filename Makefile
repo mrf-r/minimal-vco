@@ -36,6 +36,7 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+vco/bsp_stm32g0.c \
 vco/vco.c \
 Core/Src/main.c \
 Core/Src/stm32g0xx_it.c \
