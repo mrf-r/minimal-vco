@@ -3,19 +3,9 @@
 // GEN2_MAX_OCTAVE_OFFSET must be power of 2 !
 #define GEN2_MAX_OCTAVE_OFFSET 4
 // MAX_ADC must be power of 2 !
-#define MAX_ADC 4096
 #define MAX_PWM 333
 // TABLE_SIZE must be power of 2 !
 #define TABLE_SIZE 512
-
-typedef enum {
-  ADC_PITCH = 0,
-  ADC_OCTAVE,
-  ADC_GEN1AMP,
-  ADC_SYNCPHASE,
-  ADC_GEN2PITCH,
-  ADC_SYNC,
-} VcoAdcEn;
 
 static struct {
   uint32_t inc;
@@ -205,8 +195,9 @@ static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
 }
 
 void vcoInit(Vco* vco) {
-  vco->calib_scale = 65536 * (65536 / MAX_ADC);
-  vco->calib_offset = 0;
+  vco->calib_scale = ((65536 / 128 * 12 * PITCH_OCTAVES_RANGE) * 65536) / MAX_ADC;
+  vco->calib_offset = 65536 / 128 * 12;
+  vco->cycles = 0;
 }
 
 void vcoCalibrationLoad(Vco* vco, uint32_t scale, int32_t offset) {
@@ -219,24 +210,28 @@ static inline int32_t pd(uint32_t inc, int32_t noise16) {
 }
 
 void vcoTap(Vco* vco) {
-  static uint32_t cycles = 0;
-  static int32_t gen1;
-  static int32_t gen2;
-
-  // lcg
-  static int32_t lcg;
+  uint32_t cycles = timerGet();
+  int32_t lcg = vco->lcg;
   lcg = lcg * 1103515245 + 12345;
+  vco->lcg = lcg;
   int32_t lcg16 = lcg / 65536;
 
   // pitch calibration
-  uint32_t base_pitch =
+  int32_t base_pitch =
       vco->adc[ADC_PITCH] * vco->calib_scale / 65536 + vco->calib_offset;
+  if (base_pitch < 0) {
+    base_pitch = 0;
+  } else {
+    if (base_pitch > 65535) {
+      base_pitch = 65535;
+    }
+  }
 
   uint32_t base_inc;
   uint32_t base_recp;
   oscIncGet(base_pitch, &base_inc, &base_recp);
   // gen1 core
-  int32_t gen1new = gen1 + base_inc;
+  int32_t gen1new = vco->gen1 + base_inc;
 
   // gen1 octave
   // PD must be calculated for every octave
@@ -256,7 +251,7 @@ void vcoTap(Vco* vco) {
   uint32_t inc2 = base_inc + base_inc / (MAX_ADC / GEN2_MAX_OCTAVE_OFFSET) *
                                  vco->adc[ADC_GEN2PITCH];
   int32_t gen2new;
-  if (gen1new < gen1) {
+  if (gen1new < vco->gen1) {
     // sync gen2
     uint32_t adc_sync = vco->adc[ADC_SYNC] * vco->adc[ADC_SYNC] / MAX_ADC;
     if (adc_sync < (lcg16 * MAX_ADC / 65536)) {
@@ -272,12 +267,12 @@ void vcoTap(Vco* vco) {
     }
   } else {
   nosync:
-    gen2new = gen2 + inc2;
+    gen2new = vco->gen2 + inc2;
   }
-  gen1 = gen1new;
+  vco->gen1 = gen1new;
 
-  int32_t gen2o = gen2new + pd(gen2new - gen2, lcg16);
-  gen2 = gen2new;
+  int32_t gen2o = gen2new + pd(gen2new - vco->gen2, lcg16);
+  vco->gen2 = gen2new;
 
   int32_t adc_mix = vco->adc[ADC_GEN1AMP] - MAX_ADC / 2;
   int32_t adc_mix_abs = adc_mix < 0 ? -adc_mix : adc_mix;
@@ -286,8 +281,8 @@ void vcoTap(Vco* vco) {
   vco->pwm[1] =
       ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
 
-  if (cycles < vco->timer)
-    cycles = vco->timer;
+  if (vco->cycles < timerGet() - cycles)
+    vco->cycles = vco->timer;
   else
-    cycles--;
+    vco->cycles--;
 }
