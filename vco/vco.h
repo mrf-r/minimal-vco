@@ -37,11 +37,9 @@ typedef struct {
   uint32_t cycles;
 } Vco;
 
-void vcoInit(Vco* osc);
-void vcoCalibrationLoad(Vco* osc, uint32_t scale, int32_t offset);
-void vcoTap(Vco* osc);
-
-static inline uint32_t timerGet() { return 0; }
+void vcoInit(Vco* vco);
+void vcoCalibrationLoad(Vco* vco, uint32_t scale, int32_t offset);
+void vcoTap(Vco* vco);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,8 @@
-#include <stdbool.h>
-
+#include "bsp_stm32g0.h"
+#include "vco.h"
 #include "stm32g0xx_hal.h"
+
+void Error_Handler(void);
 
 bool bspButtonGet() {
   return HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == GPIO_PIN_SET ? true : false;
@@ -10,31 +12,11 @@ void bspLedSet(bool state) {
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, state ? GPIO_PIN_SET : GPIO_PIN_SET);
 }
 
-extern ADC_HandleTypeDef hadc1;
-
-void bspAdcTap(void* data) {
-  HAL_ADC_Stop(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)data, 6);
-}
-
 // NVM
 
 // #define SAVEPAGE (FLASH_PAGE_NB - 1)
 #define SAVEPAGE (15)
 #define SAVEADDRESS (FLASH_BASE + FLASH_PAGE_SIZE * SAVEPAGE)
-
-// 32 bytes,
-typedef struct {
-  uint32_t code;
-  int32_t scale;
-  int32_t offset;
-  uint32_t reserved0;
-  uint32_t reserved1;
-  uint32_t reserved2;
-  uint32_t reserved3;
-  uint32_t reserved4;
-} SaveBlock;
-
 #define SAVEBLOCKS_TOTAL (FLASH_PAGE_SIZE / sizeof(SaveBlock))
 SaveBlock* const nvm = (SaveBlock*)SAVEADDRESS;
 
@@ -70,7 +52,7 @@ int bspNvmLoad(SaveBlock* sb) {
   return ret;
 }
 
-int nvm_save(SaveBlock* sb) {
+int bspNvmSave(SaveBlock* sb) {
   int ret = 0;
   // find last block
   int lastblock = -1;
@@ -143,4 +125,64 @@ int nvm_save(SaveBlock* sb) {
     }
   }
   return ret;
+}
+
+// SIGNALS STUFF
+
+Vco vco;
+SaveBlock sb;
+extern volatile uint32_t counter_sr;
+extern TIM_HandleTypeDef htim3;
+extern ADC_HandleTypeDef hadc1;
+
+uint32_t bspTimerGet() { return __HAL_TIM_GET_COUNTER(&htim3); }
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef* htim) {
+  if (htim == &htim3) {
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, vco.pwm[0]);
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, vco.pwm[1]);
+    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, vco.pwm[2]);
+  }
+  HAL_ADC_Stop(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)vco.adc, 6);
+  counter_sr++;
+  vcoTap(&vco);
+}
+
+// MAIN
+
+void init() {
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  // HAL_ADC_Stop(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)vco.adc, 6);
+
+  if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1) != HAL_OK) {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2) != HAL_OK) {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3) != HAL_OK) {
+    Error_Handler();
+  }
+
+  vcoInit(&vco);
+  if (bspNvmLoad(&sb) == 0) {
+    vcoCalibrationLoad(&vco, sb.scale, sb.offset);
+  } else {
+    // load defaults
+    // vcoCalibrationLoad(&vco, 0, 0);
+  }
+
+  HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM3_IRQn);
+
+  // test run
+  vcoTap(&vco);
+}
+
+void vcoMain(Vco* vco);
+
+void loop() {
+  vcoMain(&vco);
 }

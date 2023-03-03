@@ -1,4 +1,5 @@
 #include "vco.h"
+#include "bsp_stm32g0.h"
 
 // GEN2_MAX_OCTAVE_OFFSET must be power of 2 !
 #define GEN2_MAX_OCTAVE_OFFSET 4
@@ -210,7 +211,7 @@ static inline int32_t pd(uint32_t inc, int32_t noise16) {
 }
 
 void vcoTap(Vco* vco) {
-  uint32_t cycles = timerGet();
+  uint32_t cycles = bspTimerGet();
   int32_t lcg = vco->lcg;
   lcg = lcg * 1103515245 + 12345;
   vco->lcg = lcg;
@@ -281,7 +282,7 @@ void vcoTap(Vco* vco) {
   vco->pwm[1] =
       ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
 
-  if (vco->cycles < timerGet() - cycles)
+  if (vco->cycles < bspTimerGet() - cycles)
     vco->cycles = vco->timer;
   else
     vco->cycles--;

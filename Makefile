@@ -38,6 +38,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 vco/bsp_stm32g0.c \
 vco/vco.c \
+vco/vco_main.c \
 Core/Src/main.c \
 Core/Src/stm32g0xx_it.c \
 Core/Src/stm32g0xx_hal_msp.c \
@@ -112,7 +113,8 @@ AS_DEFS =
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32G030xx \
--Ofast
+-Os \
+# literal pool optimization (cache .ltorg to ram)?
 
 # AS includes
 AS_INCLUDES = 
