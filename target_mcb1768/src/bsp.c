@@ -137,8 +137,7 @@ void TIMER0_IRQHandler() {
   static uint32_t lcg;
   lcg = lcg * LCG_A + LCG_B;
 
-  uint32_t tim_period =
-      SR_TIMER_NOMINAL_PERIOD * timer_sr_period + lcg / 32768;
+  uint32_t tim_period = SR_TIMER_NOMINAL_PERIOD * timer_sr_period + lcg / 32768;
   LPC_TIM0->MR0 = tim_period / 65536;
 
   uint32_t pos = counter_sr & (BLOCK_SIZE * 2 - 1);
@@ -156,10 +155,10 @@ void CAN_IRQHandler() {
   counter_cr++;
 
   if (pos) {
-    audioCallback(&audio_adc_in[0], &audio_dac_out[0], control_adc_in);
-  } else {
     audioCallback(&audio_adc_in[BLOCK_SIZE], &audio_dac_out[BLOCK_SIZE],
                   control_adc_in);
+  } else {
+    audioCallback(&audio_adc_in[0], &audio_dac_out[0], control_adc_in);
   }
 
   ledCr(false);

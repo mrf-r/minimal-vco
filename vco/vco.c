@@ -186,7 +186,8 @@ static struct {
 };
 
 #define CELL_STEPS (65536 / TABLE_SIZE)
-static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
+// static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
+static void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
   uint32_t pos = pitch / CELL_STEPS;
   uint32_t spos = pitch & (CELL_STEPS - 1);
   uint32_t v0 = table_pitch_inc[pos].inc;
@@ -250,7 +251,8 @@ void vcoTap(Vco* vco) {
                      gen1o2 / oct_fade_steps * oct_fade;
   // vco->pwm[0] = ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16)
   // / 65536;
-  vco->pwm[0] = gen1full / 65536 + 0x8000;
+  // vco->pwm[0] = gen1full / 65536 + 0x8000;
+  vco->pwm[0] = gen1new / 65536 + 0x8000;
   // GEN2 is hard synced to gen1core
   uint32_t inc2 = base_inc + base_inc / (MAX_ADC / GEN2_MAX_OCTAVE_OFFSET) *
                                  vco->adc[ADC_GEN2PITCH];

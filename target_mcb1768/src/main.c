@@ -56,7 +56,7 @@ COM
 #define NEWLINE "\r\n"
 
 static inline void ledTimeToggle() {
-  if (LPC_GPIO1->FIOPIN & (1<<28)) {
+  if (LPC_GPIO1->FIOPIN & (1 << 28)) {
     LPC_GPIO1->FIOSET = 1 << 29;
     LPC_GPIO1->FIOCLR = 1 << 28;
   } else {
@@ -65,24 +65,25 @@ static inline void ledTimeToggle() {
   }
 }
 
-
-
-
 Vco v;
 
-void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in){
+#include "basic_osc.h"
+BasicOcs b;
+
+void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   (void)in;
   // controls input
   for (int i = 0; i < 6; i++) {
     v.adc[i] = ctrl_in[i];
   }
+  boscInit(&b, 800);
   // signal output
   for (int i = 0; i < BLOCK_SIZE; i++) {
     vcoTap(&v);
-    out[i] = v.pwm[0] - 0x8000;
+    out[i] = boscParabolicSine(&b) / 65536;
+    // out[i] = v.pwm[0] - 0x8000;
   }
 }
-
 
 int main(void) {
   // enable DWT and other debug systems
@@ -94,6 +95,7 @@ int main(void) {
   LPC_GPIO1->FIODIR |= 0xB0000000;
   LPC_GPIO2->FIODIR |= 0x0000007C;
   // audio
+  vcoInit(&v);
   bspAudioInit();
 
   // adc and dac
@@ -101,18 +103,14 @@ int main(void) {
   // eth irq block
 
   // buttons
-
-  vcoTap(&v);
+  // vcoTap(&v);
 
   while (1) {
     static uint32_t counter_prev = 0;
-    if (counter_cr > counter_prev){
-      counter_prev+=CONTROL_RATE;
+    if (counter_cr > counter_prev) {
+      counter_prev += CONTROL_RATE;
       ledTimeToggle();
     }
-
-
-
 
     vcoMain(&v);
     // scope update
