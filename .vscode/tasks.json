@@ -1,0 +1,50 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "mcb1768 ram",
+            "type": "shell",
+            "group": "build",
+            "command": "make mcb1768 -j -O DEBUG=1 RAMLINK=1 CLI_MODE_FLOAT_VARIABLES=0",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make clean",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+        },
+        {
+            "label": "help",
+            "type": "shell",
+            "group": "build",
+            "command": "make help",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+        },
+        
+    ]
+}

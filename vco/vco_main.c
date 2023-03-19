@@ -1,15 +1,17 @@
 #include "vco.h"
-#include "bsp_stm32g0.h"
+#include "bsp.h"
 
 //  SAMPLE_RATE is for button timings only
-#define SAMPLE_RATE 192000
+// #define SAMPLE_RATE 192000
 #define MENU_DELAY_MS 2000
 #define DEBOUNCE_TICKS (50 * SAMPLE_RATE / 1000)
 // ADC_AVERAGE_COUNT - please, 2's power as well
 #define ADC_AVERAGE_COUNT 8192
 
-volatile uint32_t counter_sr = 0;
-static bool button = false;
+extern volatile uint32_t counter_sr;
+// static bool button = false;
+
+SaveBlock sb;
 
 static inline void delayMs(uint32_t ms) {
   uint32_t sr_end = ms * (SAMPLE_RATE / 1000) + counter_sr;
@@ -22,6 +24,7 @@ static inline uint32_t timeMsDelta() {
   static uint32_t last_call_sr = 0;
   uint32_t delta = counter_sr - last_call_sr;
   delta = delta / (SAMPLE_RATE / 1000);
+  return delta;
 }
 
 static inline bool buttonStateGet() {
@@ -60,13 +63,13 @@ algo:
 extern SaveBlock sb;
 
 void vcoMain(Vco* vco) {
-  static uint32_t state = 0;
-  uint32_t cv_average_low;
-  uint32_t cv_average_high;
-  uint32_t sr;
-  uint32_t samples;
-  uint32_t menu_delay;
-  switch (state) {
+  // static uint32_t vco->state = 0;
+  // static uint32_t vco->cv_average_low = 0;
+  // static uint32_t vco->cv_average_high = 0;
+  // static uint32_t vco->sr = 0;
+  // static uint32_t vco->samples = 0;
+  // static uint32_t vco->menu_delay = 0;
+  switch (vco->state) {
     default:
       while (1)
         ;
@@ -76,77 +79,77 @@ void vcoMain(Vco* vco) {
     // WAIT
     case SM_WAIT:  // button wait
       if (buttonStateGet()) {
-        state++;
+        vco->state++;
       }
       break;
     case SM_WAIT + 1:  // button release wait
       if (buttonStateGet()) {
         bspLedSet(true);
-        menu_delay = counter_sr + MENU_DELAY_MS * SAMPLE_RATE / 1000;
-        state++;
+        vco->menu_delay = counter_sr + MENU_DELAY_MS * SAMPLE_RATE / 1000;
+        vco->state++;
       }
       break;
     case SM_WAIT + 2:  // wait calibration request
-      if (counter_sr > menu_delay) {
-        menu_delay = counter_sr + MENU_DELAY_MS * SAMPLE_RATE / 1000;
-        state++;
+      if (counter_sr > vco->menu_delay) {
+        vco->menu_delay = counter_sr + MENU_DELAY_MS * SAMPLE_RATE / 1000;
+        vco->state++;
       }
       if (buttonStateGet()) {
-        state = SM_CALIB;
+        vco->state = SM_CALIB;
       }
       break;
     case SM_WAIT + 3:                     // wait save request
       bspLedSet((counter_sr / 4) & 0x1);  // half brightness
-      if (counter_sr > menu_delay) {
-        state = SM_WAIT;
+      if (counter_sr > vco->menu_delay) {
+        vco->state = SM_WAIT;
       }
       if (buttonStateGet()) {
-        state = SM_SAVE;
+        vco->state = SM_SAVE;
       }
       break;
 
     /////////////////////////////////////////////////////////////////////
     // CALIB
     case SM_CALIB:
-      cv_average_low = 0;
-      samples = 0;
-      sr = counter_sr;
+      vco->cv_average_low = 0;
+      vco->samples = 0;
+      vco->sr = counter_sr;
       break;
     case SM_CALIB + 1:  // low acquisition
-      if (sr != counter_sr) {
-        cv_average_low += vco->adc[ADC_PITCH];
-        samples++;
-        if (samples > ADC_AVERAGE_COUNT) {
-          state++;
+      if (vco->sr != counter_sr) {
+        vco->cv_average_low += vco->adc[ADC_PITCH];
+        vco->samples++;
+        if (vco->samples > ADC_AVERAGE_COUNT) {
+          vco->state++;
         }
-        sr = counter_sr;
+        vco->sr = counter_sr;
       }
       break;
     case SM_CALIB + 2:  // button wait
       if (buttonStateGet()) {
-        cv_average_high = 0;
-        samples = 0;
-        sr = counter_sr;
-        state++;
+        vco->cv_average_high = 0;
+        vco->samples = 0;
+        vco->sr = counter_sr;
+        vco->state++;
       }
       break;
     case SM_CALIB + 3:  // high acquisition
-      if (sr != counter_sr) {
-        cv_average_high += vco->adc[ADC_PITCH];
-        samples++;
-        if (samples > ADC_AVERAGE_COUNT) {
+      if (vco->sr != counter_sr) {
+        vco->cv_average_high += vco->adc[ADC_PITCH];
+        vco->samples++;
+        if (vco->samples > ADC_AVERAGE_COUNT) {
           int32_t adc_range =
-              (cv_average_high - cv_average_low) / CALIB_OCTAVES_DISTANCE;
+              (vco->cv_average_high - vco->cv_average_low) / CALIB_OCTAVES_DISTANCE;
           vco->calib_scale =
               0x100000000LL / 128 * 12 * ADC_AVERAGE_COUNT / adc_range;
           vco->calib_offset =
               65536 / 128 * 12 * CALIB_OCTAVES_OFFSET -
-              ((int64_t)(cv_average_low - (cv_average_high - cv_average_low) /
+              ((int64_t)(vco->cv_average_low - (vco->cv_average_high - vco->cv_average_low) /
                                               CALIB_OCTAVES_DISTANCE)) *
                   vco->calib_scale / 65536 / ADC_AVERAGE_COUNT;
-          state = SM_WAIT;
+          vco->state = SM_WAIT;
         }
-        sr = counter_sr;
+        vco->sr = counter_sr;
       }
       break;
 
@@ -156,7 +159,7 @@ void vcoMain(Vco* vco) {
       sb.scale = vco->calib_scale;
       sb.offset = vco->calib_offset;
       bspNvmSave(&sb);
-      state = SM_WAIT;
+      vco->state = SM_WAIT;
       break;
   }
 }

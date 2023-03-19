@@ -1,5 +1,5 @@
 #include "vco.h"
-#include "bsp_stm32g0.h"
+#include "bsp.h"
 
 // GEN2_MAX_OCTAVE_OFFSET must be power of 2 !
 #define GEN2_MAX_OCTAVE_OFFSET 4
@@ -196,9 +196,9 @@ static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
 }
 
 void vcoInit(Vco* vco) {
-  vco->calib_scale = ((65536 / 128 * 12 * PITCH_OCTAVES_RANGE) * 65536) / MAX_ADC;
+  vco->calib_scale =
+      ((65536 / 128 * 12 * PITCH_OCTAVES_RANGE) * 65536) / MAX_ADC;
   vco->calib_offset = 65536 / 128 * 12;
-  vco->cycles = 0;
 }
 
 void vcoCalibrationLoad(Vco* vco, uint32_t scale, int32_t offset) {
@@ -211,7 +211,9 @@ static inline int32_t pd(uint32_t inc, int32_t noise16) {
 }
 
 void vcoTap(Vco* vco) {
+#ifdef DEBUG
   uint32_t cycles = bspTimerGet();
+#endif  // DEBUG
   int32_t lcg = vco->lcg;
   lcg = lcg * 1103515245 + 12345;
   vco->lcg = lcg;
@@ -246,8 +248,9 @@ void vcoTap(Vco* vco) {
   // x-fade them
   int32_t gen1full = gen1o1 / oct_fade_steps * (oct_fade_steps - 1 - oct_fade) +
                      gen1o2 / oct_fade_steps * oct_fade;
-  vco->pwm[0] =
-      ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
+  // vco->pwm[0] = ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16)
+  // / 65536;
+  vco->pwm[0] = gen1full / 65536 + 0x8000;
   // GEN2 is hard synced to gen1core
   uint32_t inc2 = base_inc + base_inc / (MAX_ADC / GEN2_MAX_OCTAVE_OFFSET) *
                                  vco->adc[ADC_GEN2PITCH];
@@ -255,7 +258,7 @@ void vcoTap(Vco* vco) {
   if (gen1new < vco->gen1) {
     // sync gen2
     uint32_t adc_sync = vco->adc[ADC_SYNC] * vco->adc[ADC_SYNC] / MAX_ADC;
-    if (adc_sync < (lcg16 * MAX_ADC / 65536)) {
+    if (adc_sync < ((uint32_t)lcg16 * MAX_ADC / 65536UL)) {
       uint32_t subpos_norm = (gen1new & 0x7FFFFFFF) * base_recp;
       gen2new = (subpos_norm / 65536) * inc2 / 65536;
       // random phase on a rare events
@@ -282,8 +285,11 @@ void vcoTap(Vco* vco) {
   vco->pwm[1] =
       ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
 
-  if (vco->cycles < bspTimerGet() - cycles)
-    vco->cycles = vco->timer;
+#ifdef DEBUG
+  uint32_t proc_cycles = bspTimerGet() - cycles;
+  if (vco->cycles < proc_cycles)
+    vco->cycles = proc_cycles;
   else
     vco->cycles--;
+#endif  // DEBUG
 }
