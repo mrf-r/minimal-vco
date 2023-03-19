@@ -8,6 +8,7 @@
             "defines": [
                 "USE_HAL_DRIVER",
                 "STM32G030xx"
+                "DEBUG"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",

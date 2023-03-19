@@ -65,23 +65,30 @@ static inline void ledTimeToggle() {
   }
 }
 
+// #include "basic_osc.h"
+// BasicOcs b;
 Vco v;
+volatile int32_t deb_arr[1024];
 
-#include "basic_osc.h"
-BasicOcs b;
+static uint32_t lfo_acc;
 
 void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   (void)in;
+
+  lfo_acc += (0x100000000ULL / CONTROL_RATE) / 4;
   // controls input
   for (int i = 0; i < 6; i++) {
     v.adc[i] = ctrl_in[i];
   }
-  boscInit(&b, 800);
+  v.adc[ADC_OCTAVE] = lfo_acc / 65536;
   // signal output
   for (int i = 0; i < BLOCK_SIZE; i++) {
+    static int p = 0;
+    p = (p + 1) & 1023;
     vcoTap(&v);
-    out[i] = boscParabolicSine(&b) / 65536;
-    // out[i] = v.pwm[0] - 0x8000;
+    deb_arr[p] = v.debug1;
+    // out[i] = boscParabolicSine(&b) / 65536;
+    out[i] = v.pwm[0] - 0x8000;
   }
 }
 
@@ -96,6 +103,17 @@ int main(void) {
   LPC_GPIO2->FIODIR |= 0x0000007C;
   // audio
   vcoInit(&v);
+  v.adc[ADC_PITCH] = 0x8000;
+  v.adc[ADC_OCTAVE] = 0x8000;
+  v.adc[ADC_GEN1AMP] = 0xFFFF;
+  v.adc[ADC_SYNCPHASE] = 0x8000;
+  v.adc[ADC_GEN2PITCH] = 0x8000;
+  v.adc[ADC_SYNC] = 0x0000;
+  for (int i = 0; i < 6; i++) {
+    void virtualPots(uint8_t pot, uint16_t value);
+    virtualPots(i, v.adc[i]);
+  }
+  // boscInit(&b, 800);
   bspAudioInit();
 
   // adc and dac

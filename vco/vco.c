@@ -187,7 +187,7 @@ static struct {
 
 #define CELL_STEPS (65536 / TABLE_SIZE)
 // static inline void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
-static void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
+void oscIncGet(uint16_t pitch, uint32_t* inc, uint32_t* recp) {
   uint32_t pos = pitch / CELL_STEPS;
   uint32_t spos = pitch & (CELL_STEPS - 1);
   uint32_t v0 = table_pitch_inc[pos].inc;
@@ -234,25 +234,26 @@ void vcoTap(Vco* vco) {
   uint32_t base_inc;
   uint32_t base_recp;
   oscIncGet(base_pitch, &base_inc, &base_recp);
+  vco->debug1 = base_inc;
   // gen1 core
   int32_t gen1new = vco->gen1 + base_inc;
+  // int32_t gen1new = vco->gen1 + 0x100000000ULL / SAMPLE_RATE * 2600;
 
   // gen1 octave
   // PD must be calculated for every octave
   const uint32_t oct_fade_steps = MAX_ADC / 4;
-  uint32_t oct_mul = vco->adc[ADC_OCTAVE] / oct_fade_steps;
-  uint32_t oct_fade = vco->adc[ADC_OCTAVE] & oct_fade_steps;
+  uint32_t oct_mul = vco->adc[ADC_OCTAVE] / oct_fade_steps + 1;
+  uint32_t oct_fade = vco->adc[ADC_OCTAVE] & (oct_fade_steps - 1);
   // get 2 octaves of gen1 signal with PDAM
-  int32_t gen1o1 = gen1new * oct_mul + pd(base_inc * oct_mul, lcg16);
-  oct_mul++;
-  int32_t gen1o2 = gen1new * oct_mul + pd(base_inc * oct_mul, lcg16);
+  int32_t gen1o1 = gen1new * (1 << oct_mul) + pd(base_inc * oct_mul, lcg16);
+  int32_t gen1o2 = gen1new * (2 << oct_mul) + pd(base_inc * oct_mul, lcg16);
   // x-fade them
   int32_t gen1full = gen1o1 / oct_fade_steps * (oct_fade_steps - 1 - oct_fade) +
                      gen1o2 / oct_fade_steps * oct_fade;
   // vco->pwm[0] = ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16)
   // / 65536;
-  // vco->pwm[0] = gen1full / 65536 + 0x8000;
-  vco->pwm[0] = gen1new / 65536 + 0x8000;
+  vco->pwm[0] = gen1full / 65536 + 0x8000;
+  // vco->pwm[0] = gen1o2 / 65536 + 0x8000;
   // GEN2 is hard synced to gen1core
   uint32_t inc2 = base_inc + base_inc / (MAX_ADC / GEN2_MAX_OCTAVE_OFFSET) *
                                  vco->adc[ADC_GEN2PITCH];

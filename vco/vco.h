@@ -8,7 +8,8 @@
 extern "C" {
 #endif
 
-#define MAX_ADC 4096UL
+// #define MAX_ADC 4096UL
+#define MAX_ADC 65536UL
 #define PITCH_OCTAVES_RANGE 5
 #define CALIB_OCTAVES_DISTANCE 2
 #define CALIB_OCTAVES_OFFSET 1
@@ -58,6 +59,7 @@ typedef struct {
   uint32_t menu_delay;
 
 #ifdef DEBUG
+  int32_t debug1;
   uint32_t cycles;
 #endif  // DEBUG
 } Vco;

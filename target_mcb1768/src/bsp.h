@@ -6,7 +6,7 @@
 
 #include "LPC17xx.h"
 
-#define SAMPLE_RATE 24000
+#define SAMPLE_RATE 192000
 #define CONTROL_RATE 750
 #define BLOCK_SIZE (SAMPLE_RATE / CONTROL_RATE)
 
