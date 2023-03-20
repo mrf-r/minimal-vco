@@ -80,7 +80,7 @@ void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   for (int i = 0; i < 6; i++) {
     v.adc[i] = ctrl_in[i];
   }
-  v.adc[ADC_OCTAVE] = lfo_acc / 65536;
+  v.adc[ADC_GEN2PITCH] = lfo_acc / 65536;
   // signal output
   for (int i = 0; i < BLOCK_SIZE; i++) {
     static int p = 0;
@@ -88,7 +88,7 @@ void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
     vcoTap(&v);
     deb_arr[p] = v.debug1;
     // out[i] = boscParabolicSine(&b) / 65536;
-    out[i] = v.pwm[0] - 0x8000;
+    out[i] = v.pwm[1] - 0x8000;
   }
 }
 
@@ -104,10 +104,10 @@ int main(void) {
   // audio
   vcoInit(&v);
   v.adc[ADC_PITCH] = 0x8000;
-  v.adc[ADC_OCTAVE] = 0x8000;
-  v.adc[ADC_GEN1AMP] = 0xFFFF;
-  v.adc[ADC_SYNCPHASE] = 0x8000;
-  v.adc[ADC_GEN2PITCH] = 0x8000;
+  v.adc[ADC_OCTAVE] = 0x0000;
+  v.adc[ADC_GEN1AMP] = 0x0000;
+  v.adc[ADC_SYNCPHASE] = 0x0000;
+  v.adc[ADC_GEN2PITCH] = 0x0000;
   v.adc[ADC_SYNC] = 0x0000;
   for (int i = 0; i < 6; i++) {
     void virtualPots(uint8_t pot, uint16_t value);

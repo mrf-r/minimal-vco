@@ -234,7 +234,6 @@ void vcoTap(Vco* vco) {
   uint32_t base_inc;
   uint32_t base_recp;
   oscIncGet(base_pitch, &base_inc, &base_recp);
-  vco->debug1 = base_inc;
   // gen1 core
   int32_t gen1new = vco->gen1 + base_inc;
   // int32_t gen1new = vco->gen1 + 0x100000000ULL / SAMPLE_RATE * 2600;
@@ -252,8 +251,8 @@ void vcoTap(Vco* vco) {
                      gen1o2 / oct_fade_steps * oct_fade;
   // vco->pwm[0] = ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16)
   // / 65536;
+  // vco->debug1 = base_inc;
   vco->pwm[0] = gen1full / 65536 + 0x8000;
-  // vco->pwm[0] = gen1o2 / 65536 + 0x8000;
   // GEN2 is hard synced to gen1core
   uint32_t inc2 = base_inc + base_inc / (MAX_ADC / GEN2_MAX_OCTAVE_OFFSET) *
                                  vco->adc[ADC_GEN2PITCH];
@@ -278,6 +277,8 @@ void vcoTap(Vco* vco) {
   }
   vco->gen1 = gen1new;
 
+  vco->pwm[1] = gen2new / 65536 + 0x8000;
+
   int32_t gen2o = gen2new + pd(gen2new - vco->gen2, lcg16);
   vco->gen2 = gen2new;
 
@@ -285,8 +286,8 @@ void vcoTap(Vco* vco) {
   int32_t adc_mix_abs = adc_mix < 0 ? -adc_mix : adc_mix;
   int32_t mix = (gen2o / MAX_ADC) * (MAX_ADC - 1 - adc_mix_abs) +
                 (gen1full / MAX_ADC) * adc_mix;
-  vco->pwm[1] =
-      ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
+  // vco->pwm[1] =
+  //     ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
 
 #ifdef DEBUG
   uint32_t proc_cycles = bspTimerGet() - cycles;
