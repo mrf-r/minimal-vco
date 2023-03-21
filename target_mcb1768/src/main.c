@@ -52,6 +52,7 @@ COM
 #include "rtt.h"
 #include "vco.h"
 #include "SEGGER_RTT.h"
+#include "GLCD.h"
 
 #define NEWLINE "\r\n"
 
@@ -115,6 +116,13 @@ int main(void) {
   }
   // boscInit(&b, 800);
   bspAudioInit();
+
+  GLCD_Init();
+  GLCD_Clear(0x0);
+  GLCD_SetTextColor(0xFC00);
+  GLCD_SetBackColor(0x003F);
+  GLCD_DisplayString(0, 0, 0, "hello!");
+  menuRedraw();
 
   // adc and dac
   // timer clk irq sr

@@ -10,7 +10,8 @@
 /******************************************************************************/
 
 
-#include <lpc17xx.h>
+// #include <lpc17xx.h>
+#include <LPC17xx.h>
 #include "GLCD.h"
 #include "Font_6x8_h.h"
 #include "Font_16x24_h.h"
@@ -836,9 +837,9 @@ void GLCD_Bargraph (unsigned int x, unsigned int y, unsigned int w, unsigned int
   GLCD_SetWindow(x, y, w, h);
   wr_cmd(0x22);
   wr_dat_start();
-  for (i = 0; i < h; i++) {
-    for (j = 0; j <= w-1; j++) {
-      if(j >= val) {
+  for (i = 0; i < (int)h; i++) {
+    for (j = 0; j <= (int)w-1; j++) {
+      if(j >= (int)val) {
         wr_dat_only(Color[BG_COLOR]);
       } else {
         wr_dat_only(Color[TXT_COLOR]);
@@ -870,7 +871,7 @@ void GLCD_Bitmap (unsigned int x, unsigned int y, unsigned int w, unsigned int h
   wr_cmd(0x22);
   wr_dat_start();
   for (i = (h-1)*w; i > -1; i -= w) {
-    for (j = 0; j < w; j++) {
+    for (j = 0; j < (int)w; j++) {
       wr_dat_only (bitmap_ptr[i+j]);
     }
   }
@@ -903,6 +904,7 @@ void GLCD_ScrollVertical (unsigned int dy) {
     wr_reg(0x61, 3);
   }
 #endif
+  (void)dy;
 }
 
 
