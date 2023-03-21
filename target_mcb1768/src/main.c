@@ -72,6 +72,7 @@ Vco v;
 volatile int32_t deb_arr[1024];
 
 static uint32_t lfo_acc;
+extern volatile int8_t modmatrix[3][8];
 
 void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   (void)in;
@@ -79,9 +80,11 @@ void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   lfo_acc += (0x100000000ULL / CONTROL_RATE) / 4;
   // controls input
   for (int i = 0; i < 6; i++) {
-    v.adc[i] = ctrl_in[i];
+    // v.adc[i] = ctrl_in[i];
+    v.adc[i] = (modmatrix[0][i] + 128) << 8;
+    v.adc[i] += lfo_acc / 65536 / 128 * modmatrix[1][i];
   }
-  v.adc[ADC_GEN2PITCH] = lfo_acc / 65536;
+  // v.adc[ADC_GEN2PITCH] = lfo_acc / 65536;
   // signal output
   for (int i = 0; i < BLOCK_SIZE; i++) {
     static int p = 0;
@@ -119,9 +122,9 @@ int main(void) {
 
   GLCD_Init();
   GLCD_Clear(0x0);
-  GLCD_SetTextColor(0xFC00);
-  GLCD_SetBackColor(0x003F);
-  GLCD_DisplayString(0, 0, 0, "hello!");
+  // GLCD_SetTextColor(0xFC00);
+  // GLCD_SetBackColor(0x003F);
+  // GLCD_DisplayString(0, 0, 0, "hello!");
   menuRedraw();
 
   // adc and dac
@@ -140,6 +143,8 @@ int main(void) {
 
     vcoMain(&v);
     // scope update
+
+    menuTap();
   };
 
   // start lcd (вообще можно раздуть за ХУ-осциллограф)

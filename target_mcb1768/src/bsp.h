@@ -29,6 +29,8 @@ static inline uint32_t bspTimerGet(void) { return DWT->CYCCNT; }
 extern volatile uint32_t counter_sr;
 extern volatile uint32_t counter_cr;
 
+void bspDelayMs(uint32_t ms);
+
 void bspAudioInit(void);
 BspStatus bspSetAudioPeriod(uint32_t relative);
 void bspSetAudioVolume(int16_t v);

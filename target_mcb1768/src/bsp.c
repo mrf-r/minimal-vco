@@ -37,7 +37,13 @@ static int16_t audio_adc_in[BLOCK_SIZE * 2];
 static int16_t audio_dac_out[BLOCK_SIZE * 2];
 static uint32_t timer_sr_period = 65536;
 static uint16_t control_adc_in[8];
-static int16_t volume = 32767;
+static int16_t volume = 256;
+
+void bspDelayMs(uint32_t ms) {
+  uint32_t cr = counter_cr + ms * CONTROL_RATE / 1000;
+  while (cr > counter_cr);
+  while (cr < counter_cr);
+}
 
 void virtualPots(uint8_t pot, uint16_t value) {
   if (pot < 8) {
