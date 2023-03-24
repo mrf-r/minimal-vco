@@ -247,8 +247,14 @@ void vcoTap(Vco* vco) {
   int32_t gen1o1 = gen1new * (1 << oct_mul) + pd(base_inc * oct_mul, lcg16);
   int32_t gen1o2 = gen1new * (2 << oct_mul) + pd(base_inc * oct_mul, lcg16);
   // x-fade them
-  int32_t gen1full = gen1o1 / oct_fade_steps * (oct_fade_steps - 1 - oct_fade) +
-                     gen1o2 / oct_fade_steps * oct_fade;
+
+  // int32_t gen1full = gen1o1 / oct_fade_steps * (oct_fade_steps - 1 -
+  // oct_fade) +
+  //                    gen1o2 / oct_fade_steps * oct_fade;
+  int32_t gen1full = gen1o1 / (int32_t)oct_fade_steps *
+                         (int32_t)(oct_fade_steps - 1 - oct_fade) +
+                     gen1o2 / (int32_t)oct_fade_steps * (int32_t)oct_fade;
+
   // vco->pwm[0] = ((gen1full + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16)
   // / 65536;
   // vco->debug1 = base_inc;
@@ -266,7 +272,7 @@ void vcoTap(Vco* vco) {
       // random phase on a rare events
       gen2new += lcg16 * (adc_sync * 65536 / MAX_ADC);
       // phasemod disabled, need depth knob
-      gen2new += (vco->adc[ADC_SYNCPHASE] - MAX_ADC / 2) *
+      gen2new += (vco->adc[ADC_SYNCPHASE] /* - MAX_ADC / 2 */) *
                  ((int32_t)(0x100000000ULL / MAX_ADC));
     } else {
       goto nosync;
@@ -277,7 +283,7 @@ void vcoTap(Vco* vco) {
   }
   vco->gen1 = gen1new;
 
-  vco->pwm[1] = gen2new / 65536 + 0x8000;
+  // vco->pwm[1] = gen2new / 65536 + 0x8000;
 
   int32_t gen2o = gen2new + pd(gen2new - vco->gen2, lcg16);
   vco->gen2 = gen2new;
@@ -286,8 +292,8 @@ void vcoTap(Vco* vco) {
   int32_t adc_mix_abs = adc_mix < 0 ? -adc_mix : adc_mix;
   int32_t mix = (gen2o / MAX_ADC) * (MAX_ADC - 1 - adc_mix_abs) +
                 (gen1full / MAX_ADC) * adc_mix;
-  // vco->pwm[1] =
-  //     ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
+  vco->pwm[1] = mix / 65536 + 0x8000;
+  // ((mix + 0x80000000) / 65536 * MAX_PWM + (uint32_t)lcg16) / 65536;
 
 #ifdef DEBUG
   uint32_t proc_cycles = bspTimerGet() - cycles;

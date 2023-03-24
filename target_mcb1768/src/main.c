@@ -86,13 +86,17 @@ void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   }
   // v.adc[ADC_GEN2PITCH] = lfo_acc / 65536;
   // signal output
+
   for (int i = 0; i < BLOCK_SIZE; i++) {
     static int p = 0;
     p = (p + 1) & 1023;
+    int32_t pg = v.gen1;
     vcoTap(&v);
-    deb_arr[p] = v.debug1;
+    // scopeWrite(v.pwm[0] >> 9, v.gen1 < pg ? 1 : 0);
+    scopeWrite(v.pwm[0] >> 8, v.gen1 < pg ? 1 : 0);
+    // deb_arr[p] = v.debug1;
     // out[i] = boscParabolicSine(&b) / 65536;
-    out[i] = v.pwm[1] - 0x8000;
+    out[i] = v.pwm[0];
   }
 }
 
