@@ -5,7 +5,7 @@
  */
 
 
-  __stack_size = 0x200; /* required amount of stack */
+  __stack_size = 0x400; /* required amount of stack */
 
 MEMORY
 {
@@ -32,6 +32,7 @@ SECTIONS
 		. = ORIGIN(ROM);
 		__vectors_start__ = ABSOLUTE(.) ;
 		KEEP(*(.isr_vector))
+
 		/* Global Section Table */
 		. = ALIGN(4) ;
 		__data_section_table = .;
@@ -48,8 +49,8 @@ SECTIONS
 		LONG(    ADDR(.ramtext));
 		LONG(  SIZEOF(.ramtext));
 		__ramtext_section_table_end = .;
-		
 		/* End of Global Section Table */
+
 		. = ALIGN(4) ; 
 		*(.after_vectors*)
 		
@@ -144,26 +145,35 @@ SECTIONS
 	
 	.ramtext : ALIGN(4)
 	{
+		__ramtext_load = LOADADDR (.data);
+    	__ramtext_start = .;
 		*(.ramtext)
 		*(.ramtext*)
 		*(.ramfunc)
 		*(.ramfunc*)
-		. = ALIGN(4);
+    	. = ALIGN(4);
+    	__ramtext_end = .;
 	} > RAM AT> ROM
 	
 	.data : ALIGN(4)
 	{
-		*(.data)
-		*(.data*)
+    	__data_load = LOADADDR (.data);
+    	__data_start = .;
+    	*(.data)
+    	*(.data*)
+    	. = ALIGN(4);
+    	__data_end = .;
 	} > RAM AT> ROM
 	
 	/* MAIN BSS SECTION */
 	.bss : ALIGN(4)
 	{
+    	__bss_start = .;
 		*(.bss)
 		*(.bss*)
 		*(COMMON)
 		. = ALIGN(4);
+    	__bss_end = .;
 	} > RAM
 	
 	.noinit : ALIGN(4)

@@ -2,7 +2,8 @@
 #define _BASIC_OSC_H
 
 #include <stdint.h>
-#include "bsp.h"
+#include "audio.h"
+
 #define SR SAMPLE_RATE
 #define FREQ 826
 
@@ -28,8 +29,30 @@ static inline int32_t boscTriangle(BasicOcs *b) {
   return tri;
 }
 
+static inline int32_t boscTriangleRaw(volatile int32_t saw) {
+  int32_t tri = saw;
+  if (tri < 0) tri = ~tri;
+  tri = tri * 2;
+  tri -= 0x80000000;
+  return tri;
+}
+
 static inline int32_t boscParabolicSine(BasicOcs *b) {
   volatile int32_t ps = boscTriangle(b);
+  if (ps < 0) {
+    ps = ps + 0x80000000;
+    ps = (ps / 65536) * (ps / 32768);
+    ps = ps - 0x80000000;
+  } else {
+    ps = 0x7FFFFFFF - ps;
+    ps = (ps / 65536) * (ps / 32768);
+    ps = 0x7FFFFFFF - ps;
+  }
+  return ps;
+}
+
+static inline int32_t boscParabolicSineRaw(volatile int32_t tri) {
+  int32_t ps = tri;
   if (ps < 0) {
     ps = ps + 0x80000000;
     ps = (ps / 65536) * (ps / 32768);

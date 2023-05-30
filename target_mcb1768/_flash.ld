@@ -5,7 +5,7 @@
  */
 
 
-  __stack_size = 0x200; /* required amount of stack */
+  __stack_size = 0x400; /* required amount of stack */
 
 MEMORY
 {

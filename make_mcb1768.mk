@@ -13,7 +13,7 @@ INCLUDES_TARGET := $(addprefix -I,$(DIRS_INCLUDE_TARGET))
 
 SOURCES_C_TARGET := $(wildcard $(DIR_TARGET)/src/*.c)
 SOURCES_C_TARGET += $(wildcard $(DIR_RTT)/*.c)
-# SOURCES_CPP_TARGET := $(wildcard $(DIR_TARGET)/*.cpp)
+SOURCES_CPP_TARGET := $(wildcard $(DIR_TARGET)/*.cpp)
 
 FLAGS_C_TARGET := $(FLAGS_C_COMMON)
 FLAGS_C_TARGET += $(INCLUDES_TARGET)
@@ -22,12 +22,12 @@ FLAGS_C_TARGET += -Wall -Wextra #-Wpedantic
 FLAGS_C_TARGET += -Wdouble-promotion
 FLAGS_C_TARGET += -Dgcc
 
-# FLAGS_CPP_TARGET := $(FLAGS_CPP_COMMON)
-# FLAGS_CPP_TARGET += $(INCLUDES_TARGET)
-# FLAGS_CPP_TARGET += -Ofast
-# FLAGS_CPP_TARGET += -Wall -Wextra -Wpedantic
-# FLAGS_CPP_TARGET += -Wdouble-promotion
-# FLAGS_CPP_TARGET += -Dgcc
+FLAGS_CPP_TARGET := $(FLAGS_CPP_COMMON)
+FLAGS_CPP_TARGET += $(INCLUDES_TARGET)
+FLAGS_CPP_TARGET += -Ofast
+FLAGS_CPP_TARGET += -Wall -Wextra -Wpedantic
+FLAGS_CPP_TARGET += -Wdouble-promotion
+FLAGS_CPP_TARGET += -Dgcc
 
 #######################################
 
@@ -50,9 +50,9 @@ $(DIR_OBJ_RTT)/%.o: $(DIR_RTT)/%.c | $(DIR_OBJ_TARGET) #.BUILDINFO
 	@echo "MCB1768 RTT C: $(notdir $<)"
 	@$(CC) -c $(FLAGS_C_TARGET) $< -o $@
 	
-# $(DIR_OBJ_TARGET)/%.o: $(DIR_TARGET)/%.cpp | $(DIR_OBJ_TARGET) #.BUILDINFO
-# 	@echo "MCB1768 CPP: $(notdir $<)"
-# 	@$(CPP) -c $(FLAGS_CPP_TARGET) $< -o $@
+$(DIR_OBJ_TARGET)/%.o: $(DIR_TARGET)/%.cpp | $(DIR_OBJ_TARGET) #.BUILDINFO
+	@echo "MCB1768 CPP: $(notdir $<)"
+	@$(CPP) -c $(FLAGS_CPP_TARGET) $< -o $@
 
 #######################################
 $(OBJECTS_TARGET): make_mcb1768.mk make_common_arm.mk

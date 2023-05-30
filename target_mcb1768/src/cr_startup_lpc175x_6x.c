@@ -240,12 +240,20 @@ __attribute__((section(".after_vectors"))) void bss_init(unsigned int start,
 // contains the load address, execution address and length of each RW data
 // section and the execution and length of each BSS (zero initialized) section.
 //*****************************************************************************
-extern unsigned int __data_section_table;
-extern unsigned int __data_section_table_end;
-extern unsigned int __bss_section_table;
-extern unsigned int __bss_section_table_end;
-extern unsigned int __ramtext_section_table;
-extern unsigned int __ramtext_section_table_end;
+extern void *__data_section_table;
+extern void *__bss_section_table;
+extern void *__ramtext_section_table;
+// extern unsigned int __data_section_table_end;
+// extern unsigned int __bss_section_table_end;
+// extern unsigned int __ramtext_section_table_end;
+// extern unsigned int __data_start;
+// extern unsigned int __data_end;
+// extern unsigned int __data_load;
+// extern unsigned int __bss_start;
+// extern unsigned int __bss_end;
+// extern unsigned int __ramtext_start;
+// extern unsigned int __ramtext_end;
+// extern unsigned int __ramtext_load;
 
 //*****************************************************************************
 // Reset entry point for your code.
@@ -257,37 +265,38 @@ void _startup_variables_init() {
   unsigned int LoadAddr, ExeAddr, SectionLen;
   unsigned int *SectionTableAddr;
   // Load base address of Global Section Table
-  SectionTableAddr = &__data_section_table;
 
   // Copy the data sections from flash to SRAM.
-  while (SectionTableAddr < &__data_section_table_end) {
-    LoadAddr = *SectionTableAddr++;
-    ExeAddr = *SectionTableAddr++;
-    SectionLen = *SectionTableAddr++;
-    data_init(LoadAddr, ExeAddr, SectionLen);
-  }
-  // At this point, SectionTableAddr = &__bss_section_table;
+  SectionTableAddr = (unsigned int *)&__data_section_table;
+  LoadAddr = *SectionTableAddr++;
+  ExeAddr = *SectionTableAddr++;
+  SectionLen = *SectionTableAddr++;
+  data_init(LoadAddr, ExeAddr, SectionLen);
+
   // Zero fill the bss segment
-  while (SectionTableAddr < &__bss_section_table_end) {
-    ExeAddr = *SectionTableAddr++;
-    SectionLen = *SectionTableAddr++;
-    bss_init(ExeAddr, SectionLen);
-  }
+  SectionTableAddr = (unsigned int *)&__bss_section_table;
+  ExeAddr = *SectionTableAddr++;
+  SectionLen = *SectionTableAddr++;
+  bss_init(ExeAddr, SectionLen);
+
+  SectionTableAddr = (unsigned int *)&__ramtext_section_table;
+  LoadAddr = *SectionTableAddr++;
+  ExeAddr = *SectionTableAddr++;
+  SectionLen = *SectionTableAddr++;
+  data_init(LoadAddr, ExeAddr, SectionLen);
 }
+
 void _startup_ramtext_init() {
   // Copy the data sections from flash to SRAM.
   unsigned int LoadAddr, ExeAddr, SectionLen;
   unsigned int *SectionTableAddr;
-  // Load base address of Global Section Table
-  SectionTableAddr = &__ramtext_section_table;
 
-  // Copy the data sections from flash to SRAM.
-  while (SectionTableAddr < &__ramtext_section_table_end) {
-    LoadAddr = *SectionTableAddr++;
-    ExeAddr = *SectionTableAddr++;
-    SectionLen = *SectionTableAddr++;
-    data_init(LoadAddr, ExeAddr, SectionLen);
-  }
+  // Load base address of Global Section Table
+  SectionTableAddr = (unsigned int *)&__ramtext_section_table;
+  LoadAddr = *SectionTableAddr++;
+  ExeAddr = *SectionTableAddr++;
+  SectionLen = *SectionTableAddr++;
+  data_init(LoadAddr, ExeAddr, SectionLen);
 }
 
 // #include "LPC17xx.h"
@@ -299,7 +308,7 @@ __attribute__((section(".after_vectors"))) void ResetISR(void) {
 #endif
 
   // Set VTOR according to ROM
-  *((volatile unsigned long int*)0xE000ED08UL) = (unsigned long int)&_VTORval;
+  *((volatile unsigned long int *)0xE000ED08UL) = (unsigned long int)&_VTORval;
   SystemInit();
   main();
   while (1)

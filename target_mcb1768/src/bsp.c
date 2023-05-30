@@ -1,11 +1,9 @@
 
 #include "LPC17xx.h"
 #include "bsp.h"
+#include "audio.h"
 
 // AUDIO CORE
-#if BLOCK_SIZE * CONTROL_RATE != SAMPLE_RATE
-#error "SR-CR relation is odd"
-#endif
 
 #define SR_TIMER_FREQ_HZ 96000000
 #define SR_TIMER_NOMINAL_PERIOD (SR_TIMER_FREQ_HZ / SAMPLE_RATE - 1)
@@ -37,7 +35,7 @@ static int16_t audio_adc_in[BLOCK_SIZE * 2];
 static int16_t audio_dac_out[BLOCK_SIZE * 2];
 static uint32_t timer_sr_period = 65536;
 static uint16_t control_adc_in[8];
-static int16_t volume = 256;
+static int16_t volume = 2048;
 
 void bspDelayMs(uint32_t ms) {
   uint32_t cr = counter_cr + ms * CONTROL_RATE / 1000;

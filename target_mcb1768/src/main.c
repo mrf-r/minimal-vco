@@ -74,29 +74,52 @@ volatile int32_t deb_arr[1024];
 static uint32_t lfo_acc;
 extern volatile int8_t modmatrix[3][8];
 
+#include "basic_osc.h"
+
 void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
   (void)in;
+  (void)ctrl_in;
 
   lfo_acc += (0x100000000ULL / CONTROL_RATE) / 4;
+  int32_t lfo_tri = boscTriangleRaw((int32_t)lfo_acc);
   // controls input
   for (int i = 0; i < 6; i++) {
-    // v.adc[i] = ctrl_in[i];
-    v.adc[i] = (modmatrix[0][i] + 128) << 8;
-    v.adc[i] += lfo_acc / 65536 / 128 * modmatrix[1][i];
+    int32_t p = modmatrix[0][i] * 256;
+    p += (lfo_tri / 256 * modmatrix[1][i] / 65536);
+    if (p > 32768 - 1)
+      p = 32768 - 1;
+    else if (p < -32768)
+      p = -32768;
+    v.ctrl[i] = p + 0x8000;  // to unsig
   }
-  // v.adc[ADC_GEN2PITCH] = lfo_acc / 65536;
-  // signal output
+  // v.ctrl[CTRL_PITCH] = (((uint16_t)modmatrix[0][0] + 128) * 256) |
+  //                      (((uint16_t)modmatrix[0][1] + 128));
+  // v.ctrl[CTRL_OCTAVE] = 0;
+  // v.ctrl[CTRL_MIX] = 0x8000;
+  // v.ctrl[CTRL_PHASE] = 0x8000;
+  // v.ctrl[CTRL_2PITCH] = 0;
+  // v.ctrl[CTRL_SYNC] = 0;
 
   for (int i = 0; i < BLOCK_SIZE; i++) {
     static int p = 0;
     p = (p + 1) & 1023;
     int32_t pg = v.gen1;
     vcoTap(&v);
+    // int32_t tri = boscTriangleRaw(v.gen1);
+    // int32_t sin = boscParabolicSineRaw(tri);
+
     // scopeWrite(v.pwm[0] >> 9, v.gen1 < pg ? 1 : 0);
-    scopeWrite(v.pwm[0] >> 8, v.gen1 < pg ? 1 : 0);
-    // deb_arr[p] = v.debug1;
+    deb_arr[p] = v.debug1;
     // out[i] = boscParabolicSine(&b) / 65536;
-    out[i] = v.pwm[0];
+
+    // conversion to signed is due to optimized osc
+    out[i] = v.out[1];
+    // out[i] = sin / 65536;
+
+    // void scopeWrite(int8_t sample, bool trigger);
+    // scopeWrite(out[i] / 256, v.gen1 < pg ? 1 : 0);
+    void scopeXY(int16_t x, int16_t y);
+    scopeXY(v.gen1 / 0x10000, out[i]);
   }
 }
 
@@ -111,16 +134,6 @@ int main(void) {
   LPC_GPIO2->FIODIR |= 0x0000007C;
   // audio
   vcoInit(&v);
-  v.adc[ADC_PITCH] = 0x8000;
-  v.adc[ADC_OCTAVE] = 0x0000;
-  v.adc[ADC_GEN1AMP] = 0x0000;
-  v.adc[ADC_SYNCPHASE] = 0x0000;
-  v.adc[ADC_GEN2PITCH] = 0x0000;
-  v.adc[ADC_SYNC] = 0x0000;
-  for (int i = 0; i < 6; i++) {
-    void virtualPots(uint8_t pot, uint16_t value);
-    virtualPots(i, v.adc[i]);
-  }
   // boscInit(&b, 800);
   bspAudioInit();
 
@@ -129,6 +142,7 @@ int main(void) {
   // GLCD_SetTextColor(0xFC00);
   // GLCD_SetBackColor(0x003F);
   // GLCD_DisplayString(0, 0, 0, "hello!");
+  void menuRedraw();
   menuRedraw();
 
   // adc and dac
@@ -136,7 +150,7 @@ int main(void) {
   // eth irq block
 
   // buttons
-  // vcoTap(&v);
+  vcoTap(&v);
 
   while (1) {
     static uint32_t counter_prev = 0;
@@ -145,9 +159,14 @@ int main(void) {
       ledTimeToggle();
     }
 
+    // void delayUs(uint32_t time_us);
+    // delayUs(1000);
+    // ledTimeToggle();
+
     vcoMain(&v);
     // scope update
 
+    void menuTap();
     menuTap();
   };
 
@@ -266,8 +285,6 @@ void SystemInit(void) {
   // variables
   void _startup_variables_init(void);
   _startup_variables_init();
-  void _startup_ramtext_init(void);
-  _startup_ramtext_init();
 
   SEGGER_RTT_Init();
   debugPrintStr(NEWLINE "- = openocd RTT console = -" NEWLINE);

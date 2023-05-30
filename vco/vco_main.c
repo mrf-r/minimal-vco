@@ -1,5 +1,6 @@
 #include "vco.h"
 #include "bsp.h"
+#include "audio.h"
 
 //  SAMPLE_RATE is for button timings only
 // #define SAMPLE_RATE 192000
@@ -117,7 +118,7 @@ void vcoMain(Vco* vco) {
       break;
     case SM_CALIB + 1:  // low acquisition
       if (vco->sr != counter_sr) {
-        vco->cv_average_low += vco->adc[ADC_PITCH];
+        vco->cv_average_low += vco->ctrl[CTRL_PITCH];
         vco->samples++;
         if (vco->samples > ADC_AVERAGE_COUNT) {
           vco->state++;
@@ -135,7 +136,7 @@ void vcoMain(Vco* vco) {
       break;
     case SM_CALIB + 3:  // high acquisition
       if (vco->sr != counter_sr) {
-        vco->cv_average_high += vco->adc[ADC_PITCH];
+        vco->cv_average_high += vco->ctrl[CTRL_PITCH];
         vco->samples++;
         if (vco->samples > ADC_AVERAGE_COUNT) {
           int32_t adc_range =

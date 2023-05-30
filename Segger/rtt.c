@@ -17,15 +17,16 @@ static bool rtt_active = true;
 /////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT(...)
-#define GCLK_FREQ 0
+#define CORE_FREQ 96000000
 
 // Dummy cycle blocking
 __attribute__((weak)) void delayUs(uint32_t time_us) {
   ASSERT(time_us);
-  // 14 cycles for while(c--); in c
-  volatile uint32_t c = ((time_us * ((uint32_t)GCLK_FREQ)) / 14);
-  // asm used to keep result consistent between compilers
-  __asm volatile("1: SUBS %0, %0, #1 \n BNE 1b" ::"r"(c));
+  volatile uint32_t c = time_us * ((uint32_t)CORE_FREQ / 1000 / 6);
+  __asm volatile(
+      "1:                \n"
+      "  SUBS %0, %0, #1 \n"
+      "  BNE  1b         \n" ::"r"(c));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -38,12 +39,12 @@ void rttSend(const char *c, uint16_t length) {
     uint32_t timeout = RTT_TIMEOUT_MS * 100;
     unsigned free = 0;
     do {
-      // delayUs(10);
-      // timeout--;
-      // if (timeout == 0) {
-      //   rtt_active = false;
-      //   return;
-      // }
+      delayUs(10);
+      timeout--;
+      if (timeout == 0) {
+        rtt_active = false;
+        return;
+      }
       free = SEGGER_RTT_GetAvailWriteSpace(0);
     } while (!free);
     remain -= SEGGER_RTT_WriteNoLock(0, &c[length - remain],

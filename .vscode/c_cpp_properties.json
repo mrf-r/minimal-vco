@@ -6,14 +6,14 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
+                "DEBUG",
                 "USE_HAL_DRIVER",
                 "STM32G030xx"
-                "DEBUG"
             ],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "/usr/bin/arm-none-eabi-g++",
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "gcc-arm"
         }
     ],
     "version": 4

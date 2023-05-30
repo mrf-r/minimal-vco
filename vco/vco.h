@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 // #define MAX_ADC 4096UL
-#define MAX_ADC 65536UL
+// #define MAX_ADC 65536L
 #define PITCH_OCTAVES_RANGE 5
 #define CALIB_OCTAVES_DISTANCE 2
 #define CALIB_OCTAVES_OFFSET 1
@@ -27,19 +27,19 @@ typedef struct {
 } SaveBlock;
 
 typedef enum {
-  ADC_PITCH = 0,
-  ADC_OCTAVE,
-  ADC_GEN1AMP,
-  ADC_SYNCPHASE,
-  ADC_GEN2PITCH,
-  ADC_SYNC,
+  CTRL_PITCH = 0,
+  CTRL_OCTAVE,
+  CTRL_MIX,
+  CTRL_PHASE,
+  CTRL_2PITCH,
+  CTRL_SYNC,
 } VcoAdcEn;
 
 typedef struct {
   // uint16_t timer;
   // IO
-  uint16_t adc[6];  // 16 bit left align
-  uint16_t pwm[3];
+  uint16_t ctrl[6];  // 16 bit left align
+  int16_t out[3];
 
   // internal
   int32_t lcg;

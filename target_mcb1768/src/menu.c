@@ -237,13 +237,15 @@ void menuTap() {
     if (bv) {
       switch (bv) {
         case 1 << BUT_RIGHT:
-          delay_ms = 10;
+          delay_ms = 8;
+          v += 8;
           // fall through
         case 1 << BUT_UP:
           v += 1;
           break;
         case 1 << BUT_LEFT:
-          delay_ms = 10;
+          delay_ms = 8;
+          v -= 8;
           // fall through
         case 1 << BUT_DOWN:
           v -= 1;
@@ -258,7 +260,7 @@ void menuTap() {
         v = 127;
       else if (v < -128)
         v = -128;
-      // bspDelayMs(delay_ms);
+      bspDelayMs(delay_ms);
     }
     modmatrix[cy][cx] = v;
     GLCD_SetBackColor(0x39E7);
@@ -266,8 +268,8 @@ void menuTap() {
     GLCD_DisplayString(cy * DELTA_Y + OFFSET_Y, cx * DELTA_X + OFFSET_X, 0,
                        (unsigned char *)matrixHex(cx, cy));
   }
-  void scopeDraw(void);
-  scopeDraw();
+  void scopeDrawXY(void);
+  scopeDrawXY();
 }
 
 // todo: scope
@@ -275,9 +277,9 @@ void menuTap() {
 #define SCOPE_SIZE_Y 128
 #define SCOPE_OFFSET_Y 100
 static uint32_t scope_sync = 0;
-static uint8_t scope_buffer[SCOPE_SIZE_X * 2];
+static int8_t scope_buffer[SCOPE_SIZE_X * 2];
 #define SCOPE_DIVIDER 8
-void scopeWrite(uint8_t sample, bool trigger) {
+void scopeWrite(int8_t sample, bool trigger) {
   static uint32_t pos = 0;
   static uint32_t sync = 0;
   if ((scope_sync ^ sync) && trigger) {
@@ -294,15 +296,46 @@ void scopeDraw() {
   // draw black prev
   // draw color current
   uint32_t syncinv = scope_sync ^ 1;
-  uint8_t *b_set = &scope_buffer[SCOPE_SIZE_X * (scope_sync)];
-  uint8_t *b_clr = &scope_buffer[SCOPE_SIZE_X * (syncinv)];
+  int8_t *b_set = &scope_buffer[SCOPE_SIZE_X * (scope_sync)];
+  int8_t *b_clr = &scope_buffer[SCOPE_SIZE_X * (syncinv)];
   // GLCD_Bargraph(0, SCOPE_OFFSET_Y, SCOPE_SIZE_X, SCOPE_SIZE_Y,Black);
   GLCD_WindowMax();
   for (int i = 0; i < SCOPE_SIZE_X; i++) {
     GLCD_SetTextColor(Black);
-    GLCD_PutPixel(i, b_clr[i] / (256 / SCOPE_SIZE_Y) + SCOPE_OFFSET_Y);
+    GLCD_PutPixel(i, (128 + b_clr[i]) / (256 / SCOPE_SIZE_Y) + SCOPE_OFFSET_Y);
     GLCD_SetTextColor(Cyan);
-    GLCD_PutPixel(i, b_set[i] / (256 / SCOPE_SIZE_Y) + SCOPE_OFFSET_Y);
+    GLCD_PutPixel(i, (128 + b_set[i]) / (256 / SCOPE_SIZE_Y) + SCOPE_OFFSET_Y);
   }
   scope_sync = syncinv;
+}
+
+static int16_t scope_buf_x;
+static int16_t scope_buf_y;
+void scopeXY(int16_t x, int16_t y) {
+  scope_buf_x = x;
+  scope_buf_y = y;
+}
+
+#define LCG_A 1103515245
+#define LCG_B 12345
+
+void scopeDrawXY() {
+  static uint32_t lcg;
+
+  GLCD_WindowMax();
+  GLCD_SetTextColor(Black);
+
+  for (int i = 0; i < 24; i++) {
+    lcg = lcg * LCG_A + LCG_B;
+    uint32_t tmp = lcg / 65536 * SCOPE_SIZE_X;
+    uint16_t x = tmp / 65536;
+    tmp = tmp & 0xFFFF;
+    tmp = tmp * SCOPE_SIZE_Y;
+    uint16_t y = tmp / 65536;
+    GLCD_PutPixel(x, y + SCOPE_OFFSET_Y);
+  }
+  GLCD_SetTextColor(Cyan);
+  int32_t x = (scope_buf_x + 0x8000) * SCOPE_SIZE_X / 0x10000;
+  int32_t y = (scope_buf_y + 0x8000) * SCOPE_SIZE_Y / 0x10000;
+  GLCD_PutPixel(x, y + SCOPE_OFFSET_Y);
 }
