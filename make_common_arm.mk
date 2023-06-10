@@ -13,10 +13,6 @@ CP := arm-none-eabi-objcopy
 SZ := arm-none-eabi-size
 endif
 
-ifndef BUILD_TAG
-BUILD_TAG := undefined
-endif
-
 FILE_BUILDINFO := $(DIR_OBJ)/buildinfo.h
 
 DEFINES_C_COMMON :=
@@ -65,6 +61,10 @@ FLAGS_LD_COMMON += -Xlinker --print-memory-usage
 # FLAGS_LD_COMMON += -Xlinker --no-wchar-size-warning # !!! WARNING !!! ti library was build with wchar_t = 2
 
 #######################################
+
+ifndef BUILD_TAG
+BUILD_TAG := undefined
+endif
 
 .BUILDINFO:
 	mkdir -p $(DIR_OBJ)

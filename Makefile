@@ -5,13 +5,16 @@ DIR_OBJ := build
 ifeq ($(MAKECMDGOALS),mcb1768)
     -include make_mcb1768.mk
 endif
+ifeq ($(MAKECMDGOALS),stm32g0)
+    -include make_stm32g0.mk
+endif
 
 .PHONY: clean
 clean:  ; rm -fR $(DIR_OBJ)
 
 .PHONY: help
 help : 
-	@echo "usage: make all/clean -j -O ..."
+	@echo "usage: make stm32g0 / mcb1768 / clean -j -O ..."
 	@echo "use variable GCC_PATH to customize path to ../gcc_arm_none_eabi/bin"
 	@echo "use DEBUG=1 most of the time"
 	@echo "use RAMLINK=1 to speed up tings"
