@@ -109,7 +109,10 @@ void audioCallback(int16_t *in, int16_t *out, uint16_t *ctrl_in) {
     // int32_t sin = boscParabolicSineRaw(tri);
 
     // scopeWrite(v.pwm[0] >> 9, v.gen1 < pg ? 1 : 0);
+
+#if DEBUG == 1
     deb_arr[p] = v.debug1;
+#endif
     // out[i] = boscParabolicSine(&b) / 65536;
 
     // conversion to signed is due to optimized osc

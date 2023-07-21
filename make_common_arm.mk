@@ -1,4 +1,3 @@
-
 ifdef GCC_PATH
 CC := '$(GCC_PATH)/arm-none-eabi-gcc'
 CPP:= '$(GCC_PATH)/arm-none-eabi-g++'
@@ -30,7 +29,7 @@ FLAGS_C_COMMON := $(FLAGS_MCU)
 FLAGS_C_COMMON += $(addprefix -D,$(DEFINES_C_COMMON))
 FLAGS_C_COMMON += -gdwarf-3 -fdata-sections -ffunction-sections
 FLAGS_C_COMMON += -MMD -MP
-FLAGS_C_COMMON += -ffast-math
+FLAGS_C_COMMON += -ffast-math -funsafe-math-optimizations
 # FLAGS_C_COMMON += -flto
 
 ifeq ($(DEBUG),1)
@@ -57,8 +56,6 @@ endif
 #FLAGS_LD_COMMON += --cref # add cross reference to map file
 FLAGS_LD_COMMON += -Xlinker --gc-sections
 FLAGS_LD_COMMON += -Xlinker --print-memory-usage
-#FLAGS_LD_BSP += -Xlinker --sort-common=descending #sort symbols by size to prevent gaps
-# FLAGS_LD_COMMON += -Xlinker --no-wchar-size-warning # !!! WARNING !!! ti library was build with wchar_t = 2
 
 #######################################
 

@@ -5,6 +5,9 @@ DIR_OBJ := build
 ifeq ($(MAKECMDGOALS),mcb1768)
     -include make_mcb1768.mk
 endif
+ifeq ($(MAKECMDGOALS),stm32f4)
+    -include make_stm32f4_my.mk
+endif
 ifeq ($(MAKECMDGOALS),stm32g0)
     -include make_stm32g0.mk
 endif

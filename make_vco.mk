@@ -2,6 +2,7 @@
 DIR_VCO := vco
 
 DIRS_INCLUDE_VCO := $(DIR_VCO) $(DIRS_INCLUDE_TARGET)
+DIRS_INCLUDE_TARGET += $(DIR_VCO)
 
 SOURCES_C_VCO := $(wildcard $(DIR_VCO)/*.c)
 SOURCES_CPP_VCO := $(wildcard $(DIR_VCO)/*.cpp)
