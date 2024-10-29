@@ -16,8 +16,8 @@ MEMORY
 	RamAHB (rwx) : ORIGIN = 0x2007C000, LENGTH = 32K
 }
 
-REGION_ALIAS("ROM", RamAHB);
-REGION_ALIAS("RAM", RamCCM);
+REGION_ALIAS("ROM", RamCCM);
+REGION_ALIAS("RAM", RamAHB);
 
 ENTRY(ResetISR)
 
@@ -30,7 +30,7 @@ SECTIONS
 	{
 		FILL(0xff)
 		. = ORIGIN(ROM);
-		__vectors_start__ = ABSOLUTE(.) ;
+		__vectors_start__ = .;
 		KEEP(*(.isr_vector))
 
 		/* Global Section Table */

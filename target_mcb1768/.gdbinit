@@ -17,7 +17,7 @@ define reload
     set $psp=0
     set $msp=(int)__vectors_start__
     # update rtt RAM base for openocd 
-    shell ./rtt_update.sh ../build/MCB1768.elf
+    shell sh rtt_update.sh ../build/MCB1768.elf
     source ../build/.gdbrtt
     tb main
     continue

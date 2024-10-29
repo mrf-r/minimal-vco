@@ -586,7 +586,7 @@ void GLCD_Init (void) {
 void GLCD_SetWindow (unsigned int x, unsigned int y, unsigned int w, unsigned int h) {
   unsigned int xe, ye;
 
-  if (Himax) {
+  if (Himax) { // Himax is ==0 on my board!
     xe = x+w-1;
     ye = y+h-1;
 

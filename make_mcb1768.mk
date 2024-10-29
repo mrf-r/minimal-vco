@@ -66,11 +66,11 @@ ARTIFACT_HEX := $(DIR_OBJ)/$(ARTIFACT).hex
 ARTIFACT_ELF := $(DIR_OBJ)/$(ARTIFACT).elf
 
 FLAGS_LD += $(FLAGS_LD_COMMON)
-ifeq ($(RAMLINK),1)
+# ifeq ($(RAMLINK),1) # ALWAYS RAMLINK
 FLAGS_LD += -T$(DIR_TARGET)/_ram.ld
-else
-FLAGS_LD += -T$(DIR_TARGET)/_flash.ld
-endif
+# else
+# FLAGS_LD += -T$(DIR_TARGET)/_flash.ld
+# endif
 FLAGS_LD += -Xlinker -Map=$(DIR_OBJ)/$(ARTIFACT).map
 # FLAGS_LD += -Xlinker --cref
 # FLAGS_LD += -Xlinker --trace-symbol=fprintf

@@ -27,15 +27,17 @@
             // BECAUSE IT HAPPENED LIKE EVERY DAY OR SO
             "name": "Win32",
             "includePath": [
-                "C:/portable/framework/arm-none-eabi/**",
-                // "C:/portable/framework/lib/gcc/arm-none-eabi/**",
-                // "${workspaceFolder}/target_stm32f411/Core",
-                "${workspaceFolder}/target_stm32f411/Drivers/CMSIS/Include",
-                "${workspaceFolder}/target_stm32f411/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
-                "${workspaceFolder}/target_stm32f411//Drivers/STM32F4xx_HAL_Driver/Inc",
                 "${workspaceFolder}/vco",
                 "${workspaceFolder}/mgl",
-                "${workspaceFolder}/target_stm32f411/Core"
+                "${workspaceFolder}/Segger",
+                "${workspaceFolder}/target_mcb1768/src"
+                // "C:/portable/framework/arm-none-eabi/**",
+                // "C:/portable/framework/lib/gcc/arm-none-eabi/**",
+                // "${workspaceFolder}/target_stm32f411/Core",
+                // "${workspaceFolder}/target_stm32f411/Drivers/CMSIS/Include",
+                // "${workspaceFolder}/target_stm32f411/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+                // "${workspaceFolder}/target_stm32f411//Drivers/STM32F4xx_HAL_Driver/Inc",
+                // "${workspaceFolder}/target_stm32f411/Core"
                 // "${workspaceFolder}/**"
             ],
             "defines": [
@@ -43,7 +45,7 @@
                 "USE_HAL_DRIVER",
                 "DEBUG=1"
             ],
-            "compilerPath": "C:/portable/framework/bin/arm-none-eabi-g++.exe",
+            "compilerPath": "C:/msys64/mingw64/bin/arm-none-eabi-g++.exe",
             "cStandard": "gnu17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "gcc-arm"

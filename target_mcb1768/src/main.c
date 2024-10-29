@@ -293,3 +293,16 @@ void SystemInit(void) {
   debugPrintStr(NEWLINE "- = openocd RTT console = -" NEWLINE);
   ////////////////////////////////////////////////////////////////////////////////////
 }
+
+__attribute__((weak)) int _close(int fd){
+  (void)fd; while (1); return 0;
+}
+__attribute__((weak)) long _lseek(int fd, long offset, int origin){
+  (void)fd, (void)offset, (void)origin; while (1); return 0;
+}
+__attribute__((weak)) int _read(int const fd, void * const buffer, unsigned const buffer_size){
+  (void)fd, (void)buffer, (void)buffer_size; while (1); return 0;
+}
+__attribute__((weak)) int _write(int fd, const void *buffer, unsigned int count){
+  (void)fd, (void)buffer, (void)count; while (1); return 0;
+}
